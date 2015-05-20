@@ -30,6 +30,7 @@ module Phase6
     # use pattern to pull out route params (save for later?)
     # instantiate controller and call controller action
     def run(req, res)
+
     end
   end
 
@@ -52,15 +53,42 @@ module Phase6
 
     # make each of these methods that
     # when called add route
+
+    # def get(pattern, controller_class, action_name)
+    #   add_route(pattern, :get, controller_class, action_name)
+    # end
+    # def post(pattern, controller_class, action_name)
+    #   add_route(pattern, :post, controller_class, action_name)
+    # end
+    # def put(pattern, controller_class, action_name)
+    #   add_route(pattern, :put, controller_class, action_name)
+    # end
+    # def delete(pattern, controller_class, action_name)
+    #   add_route(pattern, :delete, controller_class, action_name)
+    # end
+
     [:get, :post, :put, :delete].each do |http_method|
+      # get(pattern, controller_class, action_name)
+      # post(pattern, controller_class, action_name
+      define_method(http_method) do |pattern, controller_class, action_name|
+        add_route(pattern, http_method, controller_class, action_name)
+      end
     end
 
     # should return the route that matches this request
     def match(req)
+      @routes.find do |route|
+        route.matches?(req)
+      end
     end
 
     # either throw 404 or call run on a matched route
     def run(req, res)
+      if match(req)
+        match(req).run(req, res)
+      else
+        res.status = 404
+      end
     end
   end
 end
