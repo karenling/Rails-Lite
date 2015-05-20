@@ -10,9 +10,12 @@ module Phase5
     # You haven't done routing yet; but assume route params will be
     # passed in as a hash to `Params.new` as below:
     def initialize(req, route_params = {})
+
       @params = {}
       if !req.query_string.nil?
         @params = parse_www_encoded_form(req.query_string)
+      # elsif req.body
+      #   put req.body
       end
       # query string looks like: "key=val&key2=val2"
     end
@@ -46,7 +49,9 @@ module Phase5
         current_params[pair.first] = pair.last
       end
 
-      p build_params(query_pairs)
+      build_params(query_pairs)
+      # p current_params
+      # p build_params(query_pairs)
       # current_params = build_params(query_pairs)
 
       # @params = build_params(data)
@@ -54,11 +59,11 @@ module Phase5
 
     def build_params(data)
       params = {}
-
-      data.each do |pair|
+      data.each do |pair| #iterating through a pair of data
         current = params # we're pointing to params. when we update current, we're also updating params
-        key = pair.first
+        keys = parse_key(pair.first)
         value = pair.last
+
         keys.each_with_index do |key, idx|
           if idx == keys.length - 1
             current[key] = value
