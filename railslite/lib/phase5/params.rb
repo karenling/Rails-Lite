@@ -11,17 +11,23 @@ module Phase5
     # passed in as a hash to `Params.new` as below:
     def initialize(req, route_params = {})
 
-      @params = {}
-      if !req.query_string.nil?
+      @params = route_params
+
+      if req.query_string
         @params = parse_www_encoded_form(req.query_string)
-      # elsif req.body
-      #   put req.body
+      elsif req.body
+        @params = parse_www_encoded_form(req.body)
       end
       # query string looks like: "key=val&key2=val2"
     end
 
     def [](key)
-      key.to_sym if key.is_a?(String)
+
+      # we're able to access the key if it's a string
+      # but we also want to be able to do it if someone passes a symbol
+      if key.is_a?(Symbol)
+        key = key.to_s
+      end
       @params[key]
     end
 
@@ -38,9 +44,9 @@ module Phase5
     # should return
     # { "user" => { "address" => { "street" => "main", "zip" => "89436" } } }
     def parse_www_encoded_form(www_encoded_form)
-      # e.g. parse_www_encoded_form(@query_string)
-      # this takes: "key=val&key2=val2"
-      # to:  [["key", "val"], ["key2", "val2"]]
+      # e.g. parse_www_encoded_form(query_string)
+      # where query_string: "key=val&key2=val2"
+      # parse_www_encoded_form(query_string) should give us  [["key", "val"], ["key2", "val2"]]
 
       current_params = {}
       query_pairs = URI::decode_www_form(www_encoded_form, enc=Encoding::UTF_8)
