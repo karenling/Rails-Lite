@@ -10,24 +10,16 @@ module Phase5
     # You haven't done routing yet; but assume route params will be
     # passed in as a hash to `Params.new` as below:
     def initialize(req, route_params = {})
-      @req = req
-      @params = route_params
+      @params = {}
+      if !req.query_string.nil?
+        @params = parse_www_encoded_form(req.query_string)
+      end
+      # query string looks like: "key=val&key2=val2"
     end
 
     def [](key)
+      key.to_sym if key.is_a?(String)
       @params[key]
-      # hash = {}
-      # queries = URI::decode_www_form("user[address][street]=main&user[address][zip]=89436", enc=Encoding::UTF_8)
-      #
-      # p queries
-      # queries.each do |pair|
-      #   hash[pair[0]] = pair[1]
-      # end
-      #
-      #
-      #
-      #
-      # p hash
     end
 
     def to_s
@@ -43,11 +35,41 @@ module Phase5
     # should return
     # { "user" => { "address" => { "street" => "main", "zip" => "89436" } } }
     def parse_www_encoded_form(www_encoded_form)
-      queries = URI::decode_www_form(www_encoded_form, enc=Encoding::UTF_8)
+      # e.g. parse_www_encoded_form(@query_string)
+      # this takes: "key=val&key2=val2"
+      # to:  [["key", "val"], ["key2", "val2"]]
 
-      queries.each do |pair|
-        @params[pair[0]] = pair[1]
+      current_params = {}
+      query_pairs = URI::decode_www_form(www_encoded_form, enc=Encoding::UTF_8)
+
+      query_pairs.each do |pair|
+        current_params[pair.first] = pair.last
       end
+
+      p build_params(query_pairs)
+      # current_params = build_params(query_pairs)
+
+      # @params = build_params(data)
+    end
+
+    def build_params(data)
+      params = {}
+
+      data.each do |pair|
+        current = params # we're pointing to params. when we update current, we're also updating params
+        key = pair.first
+        value = pair.last
+        keys.each_with_index do |key, idx|
+          if idx == keys.length - 1
+            current[key] = value
+          else
+            current[key] ||= {}
+            current = current[key]
+          end
+        end
+      end
+
+      params
     end
 
     # this should return an array
