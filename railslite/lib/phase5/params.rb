@@ -18,6 +18,8 @@ module Phase5
       elsif req.body
         @params = parse_www_encoded_form(req.body)
       end
+
+      # @params = route_params.merge(query_string_params).merge(post_body_params)
       # query string looks like: "key=val&key2=val2"
     end
 
