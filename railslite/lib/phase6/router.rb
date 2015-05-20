@@ -11,6 +11,7 @@ module Phase6
       # p @http_method # :get
       # p @controller_class # "UsersController"
       # p @action_name # :index
+
     end
 
     # checks if pattern matches path and method matches request method
@@ -30,6 +31,18 @@ module Phase6
     # use pattern to pull out route params (save for later?)
     # instantiate controller and call controller action
     def run(req, res)
+      # route params will look like: {"id"=>5, "user_id"=>22}
+      route_params = {}
+      route = req.path
+      regex = Regexp.new @pattern
+      match_data = regex.match(route)
+
+      (match_data.names).each do |name|
+        route_params[name] = match_data[name]
+      end
+
+      controller = @controller_class.new(req, res, route_params)
+      controller.invoke_action(@action_name)
 
     end
   end
@@ -49,6 +62,7 @@ module Phase6
     # evaluate the proc in the context of the instance
     # for syntactic sugar :)
     def draw(&proc)
+      instance_eval(&proc)
     end
 
     # make each of these methods that

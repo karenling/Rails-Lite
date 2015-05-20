@@ -3,7 +3,7 @@ require 'webrick'
 server = WEBrick::HTTPServer.new(:Port => 3000)
 
 server.mount_proc("/") do |request, response|
-  response.content_type = "text/text"
+  response.content_type = "text/html"
   response.body = request.unparsed_uri
 end
 
